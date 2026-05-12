@@ -72,7 +72,7 @@
     ══════════════════════════════════════ -->
     <div class="flex flex-1 flex-col overflow-y-auto">
       <div class="flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10">
-        <div class="w-full max-w-[360px] flex flex-col gap-7">
+        <div class="w-full max-w-[380px] flex flex-col gap-7">
 
           <!-- Logo mobile -->
           <div class="flex lg:hidden justify-center">
@@ -82,111 +82,231 @@
           <!-- Cabeçalho -->
           <div class="flex flex-col gap-1.5">
             <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">
-              {{ isLogin ? 'Bem-vindo de volta' : 'Criar sua conta' }}
+              {{ tituloCabecalho }}
             </h1>
             <p class="text-sm text-slate-500">
-              {{ isLogin
-                ? 'Entre com suas credenciais para continuar.'
-                : 'Preencha os dados abaixo para começar.' }}
+              {{ subtituloCabecalho }}
             </p>
           </div>
 
-          <!-- Tabs -->
-          <div class="flex rounded-lg bg-slate-100 p-1 gap-1">
-            <button
-              v-for="tab in tabs"
-              :key="tab.key"
-              type="button"
-              @click="isLogin = tab.key === 'login'"
-              :class="[
-                'flex-1 py-2 text-sm rounded-md font-normal transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400',
-                (isLogin && tab.key === 'login') || (!isLogin && tab.key === 'register')
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700',
-              ]"
-            >
-              {{ tab.label }}
-            </button>
+          <!-- Stepper (visível apenas no cadastro) -->
+          <div v-if="!isLogin" class="flex items-center gap-2 pt-1">
+            <!-- Etapa 1 -->
+            <div class="flex flex-col items-center gap-1.5 shrink-0">
+              <div
+                :class="[
+                  'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors',
+                  step === 1
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-indigo-100 text-indigo-700',
+                ]"
+              >
+                <svg v-if="step > 1" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                <span v-else>1</span>
+              </div>
+              <span class="text-[10px] font-medium text-slate-600 whitespace-nowrap">Você</span>
+            </div>
+
+            <!-- Linha conectora -->
+            <div class="flex-1 h-px bg-slate-200 mb-5 relative overflow-hidden">
+              <div
+                class="absolute inset-y-0 left-0 bg-indigo-600 transition-all duration-300"
+                :class="step > 1 ? 'w-full' : 'w-0'"
+              />
+            </div>
+
+            <!-- Etapa 2 -->
+            <div class="flex flex-col items-center gap-1.5 shrink-0">
+              <div
+                :class="[
+                  'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors',
+                  step === 2
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-100 text-slate-400',
+                ]"
+              >
+                2
+              </div>
+              <span
+                class="text-[10px] font-medium whitespace-nowrap"
+                :class="step === 2 ? 'text-slate-600' : 'text-slate-400'"
+              >
+                Escola
+              </span>
+            </div>
           </div>
 
           <!-- Formulário -->
           <form class="flex flex-col gap-4" @submit.prevent="handleSubmit" novalidate>
 
-            <!-- Nome (cadastro) -->
-            <div
-              class="grid transition-all duration-200 ease-out"
-              :class="isLogin ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'"
-            >
-              <div class="overflow-hidden">
-                <div class="pb-1">
-                  <BaseInput v-model="form.nome" label="Nome completo" placeholder="Ex: João Silva" autocomplete="name" />
+            <!-- ═════════ LOGIN ═════════ -->
+            <template v-if="isLogin">
+              <BaseInput
+                v-model="form.email"
+                label="E-mail institucional"
+                type="email"
+                placeholder="seu@escola.com.br"
+                autocomplete="email"
+              />
+
+              <div class="flex flex-col gap-1">
+                <BaseInput
+                  v-model="form.senha"
+                  label="Senha"
+                  type="password"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                />
+                <div class="flex justify-end">
+                  <button type="button" class="text-xs text-indigo-600 hover:underline focus-visible:outline-none">
+                    Esqueceu a senha?
+                  </button>
                 </div>
               </div>
-            </div>
+            </template>
 
-            <BaseInput
-              v-model="form.email"
-              label="E-mail institucional"
-              type="email"
-              placeholder="seu@escola.com.br"
-              required
-              autocomplete="email"
-            />
-
-            <div class="flex flex-col gap-1">
+            <!-- ═════════ CADASTRO — ETAPA 1: ADMIN ═════════ -->
+            <template v-if="!isLogin && step === 1">
+              <BaseInput
+                v-model="form.nome"
+                label="Nome completo"
+                placeholder="Ex: João Silva"
+                autocomplete="name"
+              />
+              <BaseInput
+                :model-value="form.whatsapp"
+                @update:model-value="form.whatsapp = mascararTelefone($event)"
+                label="WhatsApp"
+                type="tel"
+                placeholder="(11) 99999-0000"
+                autocomplete="tel"
+              />
+              <BaseInput
+                v-model="form.email"
+                label="E-mail institucional"
+                type="email"
+                placeholder="seu@escola.com.br"
+                autocomplete="email"
+              />
               <BaseInput
                 v-model="form.senha"
                 label="Senha"
                 type="password"
-                placeholder="••••••••"
-                required
-                :autocomplete="isLogin ? 'current-password' : 'new-password'"
+                placeholder="Mínimo 6 caracteres"
+                autocomplete="new-password"
               />
-              <div v-if="isLogin" class="flex justify-end">
-                <button type="button" class="text-xs text-indigo-600 hover:underline focus-visible:outline-none">
-                  Esqueceu a senha?
-                </button>
+              <BaseInput
+                v-model="form.confirmar"
+                label="Confirmar senha"
+                type="password"
+                placeholder="Digite novamente"
+                autocomplete="new-password"
+                :error="erroConfirmarSenha"
+              />
+            </template>
+
+            <!-- ═════════ CADASTRO — ETAPA 2: ESCOLA ═════════ -->
+            <template v-if="!isLogin && step === 2">
+              <BaseInput
+                v-model="form.nome_escola"
+                label="Nome da escola"
+                placeholder="Ex: Colégio Exemplo"
+              />
+              <BaseInput
+                :model-value="form.cnpj"
+                @update:model-value="form.cnpj = mascararCNPJ($event)"
+                label="CNPJ"
+                placeholder="00.000.000/0000-00"
+                :error="erroCNPJ"
+              />
+              <BaseInput
+                :model-value="form.telefone_escola"
+                @update:model-value="form.telefone_escola = mascararTelefone($event)"
+                label="Telefone comercial"
+                type="tel"
+                placeholder="(11) 3000-0000"
+              />
+              <BaseInput
+                :model-value="form.cep"
+                @update:model-value="form.cep = mascararCEP($event)"
+                label="CEP"
+                placeholder="00000-000"
+                autocomplete="postal-code"
+                :hint="buscandoCep
+                  ? 'Buscando endereço…'
+                  : 'Rua e bairro serão preenchidos automaticamente.'"
+              />
+              <div class="grid grid-cols-[1fr_90px] gap-3">
+                <BaseInput
+                  v-model="form.logradouro"
+                  label="Rua / Logradouro"
+                  placeholder="Av. Paulista"
+                  autocomplete="address-line1"
+                />
+                <BaseInput
+                  v-model="form.numero"
+                  label="Número"
+                  placeholder="1500"
+                  autocomplete="address-line2"
+                />
+              </div>
+              <BaseInput
+                v-model="form.bairro"
+                label="Bairro"
+                placeholder="Centro"
+                autocomplete="address-level3"
+              />
+            </template>
+
+            <!-- Botões -->
+            <div class="flex flex-col gap-2 mt-1">
+              <!-- Login -->
+              <BaseButton
+                v-if="isLogin"
+                type="submit"
+                block
+                :loading="submitting"
+                :disabled="!loginValido"
+                size="md"
+              >
+                Entrar
+              </BaseButton>
+
+              <!-- Cadastro etapa 1 — Continuar -->
+              <BaseButton
+                v-if="!isLogin && step === 1"
+                type="submit"
+                block
+                :disabled="!step1Valido"
+                size="md"
+              >
+                Continuar
+              </BaseButton>
+
+              <!-- Cadastro etapa 2 — Voltar + Criar conta -->
+              <div v-if="!isLogin && step === 2" class="grid grid-cols-[auto_1fr] gap-2">
+                <BaseButton
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  :disabled="submitting"
+                  @click="step = 1"
+                >
+                  Voltar
+                </BaseButton>
+                <BaseButton
+                  type="submit"
+                  block
+                  :loading="submitting"
+                  :disabled="!step2Valido"
+                  size="md"
+                >
+                  Criar conta
+                </BaseButton>
               </div>
             </div>
-
-            <!-- Confirmar senha (cadastro) -->
-            <div
-              class="grid transition-all duration-200 ease-out"
-              :class="isLogin ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'"
-            >
-              <div class="overflow-hidden">
-                <div class="pb-1">
-                  <BaseInput v-model="form.confirmar" label="Confirmar senha" type="password" placeholder="••••••••" autocomplete="new-password" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Termos (cadastro) -->
-            <div
-              class="grid transition-all duration-200 ease-out"
-              :class="isLogin ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'"
-            >
-              <div class="overflow-hidden">
-                <label class="flex items-start gap-2.5 cursor-pointer select-none pb-1">
-                  <input
-                    v-model="form.termos"
-                    type="checkbox"
-                    class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer shrink-0"
-                  />
-                  <span class="text-xs text-slate-500 leading-snug">
-                    Li e concordo com os
-                    <a href="#" class="text-indigo-600 hover:underline">Termos de uso</a>
-                    e a
-                    <a href="#" class="text-indigo-600 hover:underline">Política de privacidade</a>.
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <BaseButton type="submit" block :loading="submitting" size="md" class="mt-1">
-              {{ isLogin ? 'Entrar' : 'Criar conta' }}
-            </BaseButton>
 
           </form>
 
@@ -196,7 +316,7 @@
             <button
               type="button"
               class="text-indigo-600 hover:underline font-normal ml-1 focus-visible:outline-none"
-              @click="switchMode"
+              @click="trocarModo(!isLogin)"
             >
               {{ isLogin ? 'Cadastre-se' : 'Entrar' }}
             </button>
@@ -210,13 +330,15 @@
 </template>
 
 <script setup lang="ts">
-const isLogin = ref(true)
-const submitting = ref(false)
+import { toast } from 'vue-sonner'
 
-const tabs = [
-  { key: 'login',    label: 'Entrar'    },
-  { key: 'register', label: 'Cadastrar' },
-]
+definePageMeta({ auth: false })
+
+const supabase = useSupabaseClient()
+
+const isLogin    = ref(true)
+const step       = ref<1 | 2>(1)
+const submitting = ref(false)
 
 const stats = [
   { value: '500+',  label: 'Escolas cadastradas' },
@@ -232,28 +354,256 @@ const features = [
 ]
 
 const form = reactive({
+  // admin
   nome: '',
+  whatsapp: '',
   email: '',
   senha: '',
   confirmar: '',
-  termos: false,
+  // escola
+  nome_escola: '',
+  cnpj: '',
+  telefone_escola: '',
+  cep: '',
+  logradouro: '',
+  numero: '',
+  bairro: '',
+})
+
+// Cidade/UF preenchidos pelo ViaCEP em background — enviados ao banco mas não exibidos
+const cidadeEscola = ref('')
+const estadoEscola = ref('')
+
+const buscandoCep = ref(false)
+
+// ────────────────────────── Máscaras ──────────────────────────
+function mascararTelefone(valor: string): string {
+  const d = valor.replace(/\D/g, '').slice(0, 11)
+  if (d.length === 0)  return ''
+  if (d.length <= 2)   return `(${d}`
+  if (d.length <= 6)   return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  if (d.length <= 10)  return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
+function mascararCNPJ(valor: string): string {
+  const d = valor.replace(/\D/g, '').slice(0, 14)
+  if (d.length === 0)  return ''
+  if (d.length <= 2)   return d
+  if (d.length <= 5)   return `${d.slice(0, 2)}.${d.slice(2)}`
+  if (d.length <= 8)   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`
+  if (d.length <= 12)  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
+}
+
+function mascararCEP(valor: string): string {
+  const d = valor.replace(/\D/g, '').slice(0, 8)
+  if (d.length <= 5) return d
+  return `${d.slice(0, 5)}-${d.slice(5)}`
+}
+
+// ─────────────────────── Validação real de CNPJ ───────────────────────
+function validarCNPJ(cnpj: string): boolean {
+  const d = cnpj.replace(/\D/g, '')
+  if (d.length !== 14) return false
+  if (/^(\d)\1+$/.test(d)) return false // rejeita 00000000000000, 11111111111111…
+
+  const calcularDV = (base: string): number => {
+    let soma = 0
+    let peso = base.length - 7
+    for (let i = 0; i < base.length; i++) {
+      soma += parseInt(base[i]!, 10) * peso
+      peso = peso === 2 ? 9 : peso - 1
+    }
+    const resto = soma % 11
+    return resto < 2 ? 0 : 11 - resto
+  }
+
+  const dv1 = calcularDV(d.slice(0, 12))
+  if (dv1 !== parseInt(d[12]!, 10)) return false
+
+  const dv2 = calcularDV(d.slice(0, 13))
+  return dv2 === parseInt(d[13]!, 10)
+}
+
+// ─────────────────────── Integração ViaCEP ───────────────────────
+async function buscarCep(cep: string) {
+  const d = cep.replace(/\D/g, '')
+  if (d.length !== 8) return
+
+  buscandoCep.value = true
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${d}/json/`)
+    if (!res.ok) throw new Error('Falha de rede')
+    const data = await res.json()
+
+    if (data.erro) {
+      toast.error('CEP não encontrado. Preencha o endereço manualmente.')
+      cidadeEscola.value = ''
+      estadoEscola.value = ''
+      return
+    }
+
+    form.logradouro    = data.logradouro ?? ''
+    form.bairro        = data.bairro     ?? ''
+    cidadeEscola.value = data.localidade ?? ''
+    estadoEscola.value = data.uf         ?? ''
+  } catch {
+    toast.error('Erro ao consultar CEP. Preencha o endereço manualmente.')
+    cidadeEscola.value = ''
+    estadoEscola.value = ''
+  } finally {
+    buscandoCep.value = false
+  }
+}
+
+// Dispara a busca quando o CEP estiver completo (8 dígitos)
+watch(() => form.cep, (novo) => {
+  if (novo.replace(/\D/g, '').length === 8) buscarCep(novo)
+})
+
+const tituloCabecalho = computed(() => {
+  if (isLogin.value)   return 'Bem-vindo de volta'
+  if (step.value === 1) return 'Crie seu acesso'
+  return 'Sobre a sua escola'
+})
+
+const subtituloCabecalho = computed(() => {
+  if (isLogin.value)    return 'Entre com suas credenciais para continuar.'
+  if (step.value === 1) return 'Comece informando os dados do administrador.'
+  return 'Agora os dados da escola que você vai gerenciar.'
+})
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+const emailValido = computed(() => EMAIL_REGEX.test(form.email.trim()))
+
+const loginValido = computed(() => emailValido.value && form.senha.length > 0)
+
+const step1Valido = computed(() =>
+  form.nome.trim().length                  >= 2 &&
+  form.whatsapp.replace(/\D/g, '').length  >= 10 &&
+  emailValido.value                              &&
+  form.senha.length                        >= 6 &&
+  form.senha === form.confirmar,
+)
+
+// Erro inline mostrado no input "Confirmar senha" enquanto o usuário digita
+const erroConfirmarSenha = computed(() => {
+  if (form.confirmar.length === 0) return ''
+  if (form.senha === form.confirmar) return ''
+  return 'As senhas não coincidem.'
+})
+
+const step2Valido = computed(() =>
+  form.nome_escola.trim().length                  >= 2 &&
+  validarCNPJ(form.cnpj)                                &&
+  form.telefone_escola.replace(/\D/g, '').length  >= 10 &&
+  form.cep.replace(/\D/g, '').length              === 8 &&
+  form.logradouro.trim().length                   >= 2 &&
+  form.numero.trim().length                       >= 1 &&
+  form.bairro.trim().length                       >= 2,
+)
+
+// Erro inline mostrado no input CNPJ enquanto o usuário digita
+const erroCNPJ = computed(() => {
+  const d = form.cnpj.replace(/\D/g, '')
+  if (d.length < 14) return ''
+  return validarCNPJ(form.cnpj) ? '' : 'CNPJ inválido.'
 })
 
 function resetForm() {
   form.nome = ''
+  form.whatsapp = ''
   form.email = ''
   form.senha = ''
   form.confirmar = ''
-  form.termos = false
+  form.nome_escola = ''
+  form.cnpj = ''
+  form.telefone_escola = ''
+  form.cep = ''
+  form.logradouro = ''
+  form.numero = ''
+  form.bairro = ''
+  cidadeEscola.value = ''
+  estadoEscola.value = ''
+  step.value = 1
 }
 
-function switchMode() {
-  isLogin.value = !isLogin.value
+function trocarModo(login: boolean) {
+  isLogin.value = login
   resetForm()
 }
 
-function handleSubmit() {
+function traduzirErro(msg: string): string {
+  if (msg.includes('Invalid login credentials'))  return 'E-mail ou senha incorretos.'
+  if (msg.includes('Email not confirmed'))         return 'Confirme seu e-mail antes de entrar.'
+  if (msg.includes('User already registered'))     return 'Este e-mail já está cadastrado.'
+  if (msg.includes('already registered'))          return 'Este e-mail já está cadastrado.'
+  if (msg.includes('Password should be'))          return 'A senha deve ter pelo menos 6 caracteres.'
+  if (msg.includes('Unable to validate'))          return 'Credenciais inválidas. Tente novamente.'
+  return 'Ocorreu um erro. Tente novamente.'
+}
+
+async function handleSubmit() {
+  if (isLogin.value) {
+    if (!loginValido.value) return
+    submitting.value = true
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: form.email.trim(),
+        password: form.senha,
+      })
+      if (error) throw error
+      toast.success('Bem-vindo de volta!')
+      await navigateTo('/')
+    } catch (e: any) {
+      toast.error(traduzirErro(e?.message ?? ''))
+    } finally {
+      submitting.value = false
+    }
+    return
+  }
+
+  // Cadastro — etapa 1: apenas avança
+  if (step.value === 1) {
+    if (!step1Valido.value) return
+    step.value = 2
+    return
+  }
+
+  // Cadastro — etapa 2: cria a conta (auth + profile + escola via trigger)
+  if (!step2Valido.value) return
   submitting.value = true
-  setTimeout(() => { submitting.value = false }, 2000)
+  try {
+    const { error } = await supabase.auth.signUp({
+      email: form.email.trim(),
+      password: form.senha,
+      options: {
+        data: {
+          nome:            form.nome.trim(),
+          whatsapp:        form.whatsapp.trim(),
+          nome_escola:     form.nome_escola.trim(),
+          cnpj:            form.cnpj.trim(),
+          telefone_escola: form.telefone_escola.trim(),
+          cep:             form.cep.trim(),
+          logradouro:      form.logradouro.trim(),
+          numero:          form.numero.trim(),
+          bairro:          form.bairro.trim(),
+          cidade:          cidadeEscola.value,
+          estado:          estadoEscola.value,
+        },
+      },
+    })
+    if (error) throw error
+    toast.success('Conta criada com sucesso!', {
+      description: `Sua escola "${form.nome_escola.trim()}" já está pronta para uso.`,
+    })
+    await navigateTo('/')
+  } catch (e: any) {
+    toast.error(traduzirErro(e?.message ?? ''))
+  } finally {
+    submitting.value = false
+  }
 }
 </script>

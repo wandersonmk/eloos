@@ -4,7 +4,7 @@
     <!-- ══════════════════════════════════
          SIDEBAR
     ══════════════════════════════════ -->
-    <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-slate-900 min-h-screen sticky top-0 border-r border-transparent dark:border-slate-700/60">
+    <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-slate-900 h-screen sticky top-0 border-r border-transparent dark:border-slate-700/60">
       <div class="flex items-center gap-2.5 px-5 h-16 border-b border-slate-800 shrink-0">
         <div class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
@@ -12,7 +12,7 @@
         <span class="text-white text-base font-semibold tracking-tight">Eloos</span>
       </div>
 
-      <nav class="flex flex-col gap-1 px-3 py-4 flex-1">
+      <nav class="flex flex-col gap-1 px-3 py-4 flex-1 overflow-y-auto">
         <p class="text-slate-500 text-[10px] font-semibold uppercase tracking-widest px-2 mb-2">Principal</p>
         <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-indigo-600 text-white">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
@@ -47,13 +47,27 @@
       </nav>
 
       <div class="flex items-center gap-3 px-4 py-4 border-t border-slate-800 shrink-0">
-        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">AD</div>
+        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">{{ userInitials }}</div>
         <div class="flex flex-col min-w-0 flex-1">
-          <span class="text-white text-xs font-medium truncate">Administrador</span>
-          <span class="text-slate-500 text-[11px] truncate">admin@escola.com.br</span>
+          <span class="text-white text-xs font-medium truncate">{{ userName }}</span>
+          <span class="text-slate-500 text-[11px] truncate">{{ userEmail }}</span>
         </div>
-        <button class="text-slate-500 hover:text-white transition-colors shrink-0" aria-label="Sair">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+        <button
+          @click="logout"
+          :disabled="loggingOut"
+          class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all shrink-0 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+          aria-label="Sair da conta"
+          title="Sair"
+        >
+          <svg v-if="!loggingOut" class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <svg v-else class="w-[18px] h-[18px] animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v8H4z" />
+          </svg>
         </button>
       </div>
     </aside>
@@ -66,7 +80,7 @@
       <!-- Topbar -->
       <header class="flex items-center justify-between px-6 h-16 border-b sticky top-0 z-10 transition-colors duration-200 bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700">
         <div>
-          <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ greeting }}, Administrador</p>
+          <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ greeting }}, {{ userFirstName }}</p>
           <p class="text-xs capitalize text-slate-400 dark:text-slate-500">{{ currentDate }}</p>
         </div>
 
@@ -311,7 +325,64 @@
 </template>
 
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
+
 const { isDark, toggle } = useTheme()
+
+const supabase = useSupabaseClient()
+const user     = useSupabaseUser()
+
+const loggingOut = ref(false)
+
+const { data: profile } = await useAsyncData(
+  'user-profile',
+  async () => {
+    if (!user.value) return null
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('nome, email')
+      .eq('id', user.value.id)
+      .maybeSingle()
+    if (error) {
+      console.error('Erro ao carregar perfil:', error)
+      return null
+    }
+    return data as { nome: string; email: string } | null
+  },
+  { watch: [user] },
+)
+
+const userName  = computed(
+  () => profile.value?.nome
+     ?? (user.value?.user_metadata?.nome as string | undefined)
+     ?? 'Usuário',
+)
+const userEmail = computed(() => profile.value?.email ?? user.value?.email ?? '')
+
+const userFirstName = computed(() => userName.value.trim().split(/\s+/)[0] || 'Usuário')
+
+const userInitials = computed(() => {
+  const partes = userName.value.trim().split(/\s+/).filter(Boolean)
+  if (partes.length === 0) return 'U'
+  if (partes.length === 1) return partes[0]!.slice(0, 2).toUpperCase()
+  return (partes[0]![0]! + partes[partes.length - 1]![0]!).toUpperCase()
+})
+
+async function logout() {
+  if (loggingOut.value) return
+  loggingOut.value = true
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+    toast.success('Você saiu da sua conta.')
+    await navigateTo('/login')
+  } catch (e: any) {
+    toast.error('Não foi possível sair. Tente novamente.')
+    console.error(e)
+  } finally {
+    loggingOut.value = false
+  }
+}
 
 const greeting = computed(() => {
   const h = new Date().getHours()

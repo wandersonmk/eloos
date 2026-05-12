@@ -16,7 +16,17 @@
       "Bash(cp -r nuxt-app/public .)",
       "Bash(cp -r nuxt-app/.claude/skills .claude/)",
       "Bash(git rm *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Read(//c/Users/stiif/.claude/**)",
+      "mcp__claude_ai_Supabase__list_organizations",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__get_project_url",
+      "mcp__claude_ai_Supabase__get_publishable_keys",
+      "Bash(npx nuxt@latest module add supabase)",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(git check-ignore *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\stiif\\OneDrive\\Documentos\\Aplicativos\\Eloos\\nuxt-app\\.git"
