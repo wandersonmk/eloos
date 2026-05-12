@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "dev": "npm run dev --prefix nuxt-app",
+    "build": "npm run build --prefix nuxt-app",
+    "start": "npm run start --prefix nuxt-app"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx nuxt@latest module add tailwindcss)",
+      "Bash(Get-ChildItem -Recurse -Depth 3 \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\app\")",
+      "Bash(Select-Object FullName)",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\public\\\\video\" -Force)",
+      "Bash(python \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"school management saas dashboard dark mode sidebar\" --design-system -f markdown)",
+      "Bash(py --version)",
+      "Bash(git init *)",
+      "Bash(Remove-Item -Recurse -Force \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\.git\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\stiif\\OneDrive\\Documentos\\Aplicativos\\Eloos\\nuxt-app\\.git"
+    ]
+  }
+}
