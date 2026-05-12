@@ -19,10 +19,10 @@ Fase atual: **somente frontend** — sem conexão com banco de dados. Dados são
 
 - **Framework:** Nuxt 4
 - **Estilização:** Tailwind CSS (`@nuxtjs/tailwindcss`)
-- **Pasta do app:** `nuxt-app/app/`
-- **Componentes base:** `nuxt-app/app/components/` — sempre reutilizar `BaseButton`, `BaseInput`, `BaseForm`
-- **Páginas:** `nuxt-app/app/pages/`
-- **Assets estáticos:** `nuxt-app/public/`
+- **Pasta do app:** `app/`
+- **Componentes base:** `app/components/` — sempre reutilizar `BaseButton`, `BaseInput`, `BaseForm`
+- **Páginas:** `app/pages/`
+- **Assets estáticos:** `public/`
 - **Skill de design:** `ui-ux-pro-max` — usar sempre ao criar ou melhorar telas
 
 ---

@@ -8,7 +8,14 @@
       "Bash(python \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"school management saas dashboard dark mode sidebar\" --design-system -f markdown)",
       "Bash(py --version)",
       "Bash(git init *)",
-      "Bash(Remove-Item -Recurse -Force \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\.git\")"
+      "Bash(Remove-Item -Recurse -Force \"c:\\\\Users\\\\stiif\\\\OneDrive\\\\Documentos\\\\Aplicativos\\\\Eloos\\\\nuxt-app\\\\.git\")",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(cp -r nuxt-app/app .)",
+      "Bash(cp -r nuxt-app/public .)",
+      "Bash(cp -r nuxt-app/.claude/skills .claude/)",
+      "Bash(git rm *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\stiif\\OneDrive\\Documentos\\Aplicativos\\Eloos\\nuxt-app\\.git"

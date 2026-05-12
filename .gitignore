@@ -1,14 +1,13 @@
 # Nuxt dev/build outputs
-nuxt-app/.output
-nuxt-app/.data
-nuxt-app/.nuxt
-nuxt-app/.nitro
-nuxt-app/.cache
-nuxt-app/dist
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
 
 # Node dependencies
 node_modules
-nuxt-app/node_modules
 
 # Logs
 logs
@@ -18,6 +17,9 @@ logs
 .DS_Store
 .fleet
 .idea
+
+# Legacy subfolder (arquivos movidos para a raiz)
+nuxt-app/
 
 # Local env files
 .env
