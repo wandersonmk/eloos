@@ -26,7 +26,10 @@
       "mcp__claude_ai_Supabase__get_publishable_keys",
       "Bash(npx nuxt@latest module add supabase)",
       "mcp__claude_ai_Supabase__execute_sql",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "mcp__claude_ai_Supabase__get_project",
+      "Bash(ping -n 4 glmygpyuycmurmbfvvfo.supabase.co)",
+      "Bash(curl -s -o nul -w \"Status: %%{http_code}\\\\nTempo: %%{time_total}s\\\\nTamanho: %%{size_download} bytes\\\\n\" https://glmygpyuycmurmbfvvfo.supabase.co/auth/v1/health)"
     ],
     "additionalDirectories": [
       "c:\\Users\\stiif\\OneDrive\\Documentos\\Aplicativos\\Eloos\\nuxt-app\\.git"

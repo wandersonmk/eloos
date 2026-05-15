@@ -160,9 +160,9 @@
                   autocomplete="current-password"
                 />
                 <div class="flex justify-end">
-                  <button type="button" class="text-xs text-indigo-600 hover:underline focus-visible:outline-none">
+                  <NuxtLink to="/recuperar-senha" class="text-xs text-indigo-600 hover:underline focus-visible:outline-none">
                     Esqueceu a senha?
-                  </button>
+                  </NuxtLink>
                 </div>
               </div>
             </template>
@@ -332,7 +332,7 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
 
-definePageMeta({ auth: false })
+definePageMeta({ auth: false, layout: false })
 
 const supabase = useSupabaseClient()
 

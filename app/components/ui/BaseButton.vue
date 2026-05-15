@@ -4,10 +4,10 @@
     :disabled="disabled || loading"
     :aria-busy="loading"
     :class="[
-      'relative inline-flex items-center justify-center gap-2 font-normal rounded-md',
-      'transition-all duration-200 ease-out',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'active:scale-[0.97]',
+      'relative inline-flex items-center justify-center gap-1.5 font-medium rounded-lg',
+      'transition-all duration-150 ease-out',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+      'active:scale-[0.98]',
       'touch-manipulation select-none cursor-pointer',
       sizeClasses,
       variantClasses,
@@ -34,7 +34,7 @@
     </span>
 
     <!-- Conteúdo -->
-    <span :class="loading ? 'invisible' : 'flex items-center gap-2'">
+    <span :class="loading ? 'invisible' : 'flex items-center gap-1.5'">
       <slot />
     </span>
   </button>
@@ -57,17 +57,16 @@ const props = withDefaults(defineProps<{
   block: false,
 })
 
-// Mínimo 44px de altura (touch target — Apple HIG / Material Design)
 const sizeClasses = computed(() => ({
-  sm: 'h-9 px-4 text-sm min-h-[36px]',
-  md: 'h-11 px-5 text-base min-h-[44px]',
-  lg: 'h-13 px-7 text-lg min-h-[52px]',
+  sm: 'h-7 px-2.5 text-xs',
+  md: 'h-9 px-3.5 text-sm',
+  lg: 'h-10 px-5 text-base',
 }[props.size]))
 
 const spinnerSize = computed(() => ({
-  sm: 'w-4 h-4',
-  md: 'w-5 h-5',
-  lg: 'w-6 h-6',
+  sm: 'w-3.5 h-3.5',
+  md: 'w-4 h-4',
+  lg: 'w-5 h-5',
 }[props.size]))
 
 const variantClasses = computed(() => ({

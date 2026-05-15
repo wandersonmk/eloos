@@ -1,7 +1,9 @@
 <template>
   <div>
     <NuxtRouteAnnouncer />
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
     <Toaster
       position="top-right"
       :theme="isDark ? 'dark' : 'light'"
