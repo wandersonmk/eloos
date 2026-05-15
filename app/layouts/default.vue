@@ -265,11 +265,14 @@ watchEffect(() => {
 const { data: profile } = await useAsyncData(
   'user-profile',
   async () => {
-    if (!user.value) return null
+    // user.value pode ser null/undefined em SSR ou antes da hidratação.
+    // Sem id válido, não consulta — evita 400 com "id=eq.undefined".
+    const uid = user.value?.id
+    if (!uid) return null
     const { data, error } = await supabase
       .from('profiles')
       .select('nome, email')
-      .eq('id', user.value.id)
+      .eq('id', uid)
       .maybeSingle()
     if (error) {
       console.error('Erro ao carregar perfil:', error)

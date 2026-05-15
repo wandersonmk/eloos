@@ -90,31 +90,84 @@
         <div class="flex-1 min-w-0 pt-1">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-white truncate">{{ aluno.nome }}</h1>
+            <!-- Badge único de situação: ativa / trancada / desativado -->
             <span
-              v-if="matriculaCorrente"
-              class="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+              class="text-[10px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5"
               :class="{
-                'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400': matriculaCorrente.status_matricula === 'confirmada',
-                'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400':         matriculaCorrente.status_matricula === 'docs_pendentes',
-                'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400':     matriculaCorrente.status_matricula === 'em_analise',
-                'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300':           matriculaCorrente.status_matricula === 'cancelada',
+                'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': aluno.status === 'ativo',
+                'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400':         aluno.status === 'suspenso',
+                'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300':           aluno.status === 'inativo',
               }"
-              :title="`Matrícula ${matriculaCorrente.ano_letivo}`"
             >
-              Matrícula: {{ STATUS_MATRICULA_LABEL[matriculaCorrente.status_matricula] }}
+              <span class="w-1.5 h-1.5 rounded-full"
+                :class="{
+                  'bg-emerald-500': aluno.status === 'ativo',
+                  'bg-amber-500':   aluno.status === 'suspenso',
+                  'bg-slate-400':   aluno.status === 'inativo',
+                }"
+              ></span>
+              {{ aluno.status === 'ativo' ? 'Matrícula ativa'
+                : aluno.status === 'suspenso' ? 'Matrícula trancada'
+                : 'Aluno desativado' }}
             </span>
-            <span v-else class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">Sem matrícula</span>
           </div>
-          <p class="text-sm text-slate-500 mt-1">
-            Matrícula {{ aluno.matricula || '—' }} ·
-            RA {{ aluno.ra || '—' }} ·
-            {{ aluno.idade ? `${aluno.idade} anos` : 'idade não informada' }} ·
-            {{ aluno.escola || '—' }}
+          <!-- Info contextual: idade · escola -->
+          <p class="text-sm text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5">
+              <Icon name="lucide:cake" class="w-3.5 h-3.5 text-slate-400" />
+              {{ aluno.idade ? `${aluno.idade} anos` : 'idade não informada' }}
+            </span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1.5">
+              <Icon name="lucide:building-2" class="w-3.5 h-3.5 text-slate-400" />
+              {{ aluno.escola || '—' }}
+            </span>
           </p>
-          <div class="mt-2 inline-flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+
+          <!-- Cards de RA e RM (destacados, com botão de copiar) + chip da turma -->
+          <div class="mt-3 flex items-center gap-2 flex-wrap">
+            <!-- RM -->
+            <div
+              class="group inline-flex items-center gap-2 pl-2.5 pr-1 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+              :title="`RM: ${aluno.matricula || '—'}`"
+            >
+              <span class="text-[9px] uppercase tracking-widest text-slate-400 font-semibold">RM</span>
+              <span class="text-[12px] font-mono font-semibold text-slate-800 dark:text-slate-100 tabular-nums">{{ aluno.matricula || '—' }}</span>
+              <button
+                v-if="aluno.matricula"
+                type="button"
+                @click="copiarTexto(aluno.matricula!, 'RM')"
+                class="w-6 h-6 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                aria-label="Copiar RM"
+                title="Copiar"
+              >
+                <Icon :name="copiado === 'RM' ? 'lucide:check' : 'lucide:copy'" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <!-- RA -->
+            <div
+              class="group inline-flex items-center gap-2 pl-2.5 pr-1 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-colors hover:border-indigo-300 dark:hover:border-indigo-700"
+              :title="`RA: ${aluno.ra || '—'}`"
+            >
+              <span class="text-[9px] uppercase tracking-widest text-slate-400 font-semibold">RA</span>
+              <span class="text-[12px] font-mono font-semibold text-slate-800 dark:text-slate-100 tabular-nums">{{ aluno.ra || '—' }}</span>
+              <button
+                v-if="aluno.ra"
+                type="button"
+                @click="copiarTexto(aluno.ra!, 'RA')"
+                class="w-6 h-6 inline-flex items-center justify-center rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                aria-label="Copiar RA"
+                title="Copiar"
+              >
+                <Icon :name="copiado === 'RA' ? 'lucide:check' : 'lucide:copy'" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <!-- Turma -->
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
               <Icon name="lucide:layers" class="w-3 h-3" />
-              Turma: {{ turmaAtualLabel || 'sem turma' }}
+              {{ turmaAtualLabel || 'Sem turma' }}
             </span>
             <button
               type="button"
@@ -128,8 +181,72 @@
         </div>
         <div class="flex items-center gap-2 pt-1">
           <BaseButton variant="outline" size="sm">Imprimir ficha</BaseButton>
+
+          <!-- Menu de Ações -->
+          <div class="relative">
+            <BaseButton
+              variant="outline"
+              size="sm"
+              @click="menuAcoesAberto = !menuAcoesAberto"
+              :class="menuAcoesAberto ? 'ring-2 ring-indigo-200 dark:ring-indigo-700' : ''"
+            >
+              Ações
+            </BaseButton>
+            <div
+              v-if="menuAcoesAberto"
+              ref="menuAcoesEl"
+              class="absolute right-0 top-full mt-2 z-40 w-60 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg overflow-hidden"
+            >
+              <!-- Quando ATIVO: ações de mudança de estado -->
+              <template v-if="aluno.status === 'ativo'">
+                <button
+                  type="button"
+                  @click="atualizarStatus('suspenso'); menuAcoesAberto = false"
+                  class="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2.5 text-amber-600 dark:text-amber-400"
+                >
+                  <Icon name="lucide:lock" class="w-4 h-4" />
+                  Trancar matrícula
+                </button>
+                <button
+                  type="button"
+                  @click="atualizarStatus('inativo'); menuAcoesAberto = false"
+                  class="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 flex items-center gap-2.5 text-slate-700 dark:text-slate-300"
+                >
+                  <Icon name="lucide:user-minus" class="w-4 h-4" />
+                  Desativar aluno
+                </button>
+              </template>
+
+              <!-- Quando SUSPENSO ou INATIVO: opção única para reativar -->
+              <button
+                v-else
+                type="button"
+                @click="atualizarStatus('ativo'); menuAcoesAberto = false"
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-emerald-50 dark:hover:bg-emerald-900/20 flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400 font-medium"
+              >
+                <Icon name="lucide:user-check" class="w-4 h-4" />
+                Ativar aluno
+              </button>
+
+              <div class="border-t border-slate-100 dark:border-slate-700"></div>
+
+              <!-- Excluir -->
+              <button
+                type="button"
+                @click="modalExcluir = true; menuAcoesAberto = false"
+                class="w-full px-4 py-2.5 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2.5 text-red-600 dark:text-red-400"
+              >
+                <Icon name="lucide:trash-2" class="w-4 h-4" />
+                Excluir aluno
+              </button>
+            </div>
+          </div>
+
           <BaseButton variant="outline" size="sm" @click="$router.push('/alunos')">Cancelar</BaseButton>
-          <BaseButton size="sm" @click="salvarAlteracoes">Salvar alterações</BaseButton>
+          <BaseButton size="sm" :disabled="salvandoAlteracoes" @click="salvarAlteracoes">
+            <Icon v-if="salvandoAlteracoes" name="lucide:loader-2" class="w-3.5 h-3.5 animate-spin" />
+            Salvar alterações
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -215,23 +332,116 @@
       <!-- ════════════════ DADOS DO ALUNO ════════════════ -->
       <div v-if="abaAtiva === 'dados'" class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="md:col-span-2 flex flex-col gap-4">
-          <section class="rounded-xl border border-slate-200 dark:border-slate-700 p-5">
-            <p class="text-[11px] uppercase tracking-widest text-slate-400 mb-3">Dados pessoais</p>
-            <div class="grid grid-cols-2 gap-3">
-              <div v-for="f in dadosPessoais" :key="f.label">
-                <span class="text-[10px] uppercase tracking-widest text-slate-400 block">{{ f.label }}</span>
-                <span class="text-sm text-slate-800 dark:text-slate-200">{{ f.val || '—' }}</span>
-              </div>
-            </div>
+
+          <!-- Identificação editável -->
+          <section class="rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4">
+            <p class="text-[11px] uppercase tracking-widest text-slate-400">Identificação</p>
+            <FormGrid :cols="2">
+              <BaseInput v-model="form.nome" label="Nome do aluno" required />
+              <BaseInput
+                :model-value="form.cpf"
+                @update:model-value="form.cpf = applyCpfMask($event)"
+                label="CPF"
+                placeholder="000.000.000-00"
+                required
+              />
+            </FormGrid>
+            <FormGrid :cols="2">
+              <BaseInput
+                :model-value="raAutoGerado"
+                label="RA (Registro do Aluno)"
+                disabled
+                placeholder="Preencha o CPF para gerar"
+                hint="Gerado automaticamente"
+              />
+              <BaseInput
+                :model-value="rmAutoGerado"
+                label="RM (Registro de Matrícula)"
+                disabled
+                placeholder="Preencha o CPF para gerar"
+                hint="Gerado automaticamente"
+              />
+            </FormGrid>
+            <FormGrid :cols="2">
+              <BaseInput v-model="form.dataNascimento" label="Data de nascimento" type="date" />
+              <BaseSelect
+                v-model="form.status"
+                label="Status"
+                :options="statusOpts"
+              />
+            </FormGrid>
           </section>
-          <section class="rounded-xl border border-slate-200 dark:border-slate-700 p-5">
-            <p class="text-[11px] uppercase tracking-widest text-slate-400 mb-3">Endereço</p>
-            <div class="grid grid-cols-2 gap-3">
-              <div v-for="f in dadosEndereco" :key="f.label">
-                <span class="text-[10px] uppercase tracking-widest text-slate-400 block">{{ f.label }}</span>
-                <span class="text-sm text-slate-800 dark:text-slate-200">{{ f.val || '—' }}</span>
-              </div>
-            </div>
+
+          <!-- Unidade, turma, tabela, pagamento -->
+          <section class="rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4">
+            <p class="text-[11px] uppercase tracking-widest text-slate-400">Matrícula corrente</p>
+            <FormGrid :cols="2">
+              <BaseSelect
+                :model-value="form.escolaId"
+                @update:model-value="onEscolaChange"
+                label="Unidade"
+                required
+                :placeholder="loadingOpts ? 'Carregando...' : 'Selecione a unidade'"
+                :options="escolasOpts"
+              />
+              <BaseSelect
+                v-model="form.turmaId"
+                label="Turma"
+                required
+                :placeholder="form.escolaId ? 'Selecione a turma' : 'Selecione a unidade antes'"
+                :disabled="!form.escolaId"
+                :options="turmasDaUnidadeOpts"
+                :hint="form.escolaId && !loadingOpts && !turmasDaUnidadeOpts.length ? 'Esta unidade não tem turmas vinculadas' : ''"
+              />
+            </FormGrid>
+            <FormGrid :cols="2">
+              <BaseSelect
+                v-model="form.tabelaPrecoId"
+                label="Tabela de preço"
+                required
+                placeholder="Selecione a tabela"
+                :options="tabelasOpts"
+                hint="Aplica mensalidade, matrícula e material a este aluno"
+              />
+              <BaseSelect
+                v-model="form.formaPagamento"
+                label="Forma de pagamento"
+                required
+                placeholder="Selecione"
+                :options="formaPagamentoOpts"
+                hint="Padrão para as mensalidades"
+              />
+            </FormGrid>
+          </section>
+
+          <!-- Endereço editável -->
+          <section class="rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4">
+            <p class="text-[11px] uppercase tracking-widest text-slate-400">Endereço residencial</p>
+            <FormGrid :cols="2">
+              <BaseInput
+                :model-value="form.cep"
+                @update:model-value="onCepInput"
+                label="CEP"
+                placeholder="00000-000"
+                :hint="buscandoCep ? 'Buscando endereço...' : 'Digite o CEP para preencher automaticamente'"
+              />
+              <BaseInput v-model="form.logradouro" label="Logradouro (Rua / Av.)" />
+            </FormGrid>
+            <FormGrid :cols="3">
+              <BaseInput v-model="form.numero" label="Número" />
+              <BaseInput v-model="form.complemento" label="Complemento" />
+              <BaseInput v-model="form.bairro" label="Bairro" />
+            </FormGrid>
+            <FormGrid :cols="3">
+              <BaseInput v-model="form.cidade" label="Cidade" />
+              <BaseInput
+                :model-value="form.estado"
+                @update:model-value="form.estado = $event.toUpperCase().slice(0, 2)"
+                label="Estado (UF)"
+                placeholder="SP"
+              />
+              <BaseInput v-model="form.pais" label="País" placeholder="Brasil" />
+            </FormGrid>
           </section>
         </div>
         <div class="flex flex-col gap-4">
@@ -1076,6 +1286,119 @@
       </template>
     </BaseModal>
 
+    <!-- Modal de confirmação de exclusão de aluno -->
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="modalExcluir"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm"
+        @click.self="!excluindoAluno && (modalExcluir = false)"
+      >
+        <Transition
+          enter-active-class="transition duration-200 ease-out"
+          enter-from-class="opacity-0 scale-95"
+          enter-to-class="opacity-100 scale-100"
+          leave-active-class="transition duration-150 ease-in"
+          leave-from-class="opacity-100 scale-100"
+          leave-to-class="opacity-0 scale-95"
+        >
+          <div v-if="modalExcluir" class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+
+            <!-- Header com gradient -->
+            <div class="relative bg-gradient-to-br from-red-500 to-rose-600 px-6 pt-8 pb-6 text-center">
+              <div class="w-16 h-16 mx-auto rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/10">
+                <Icon name="lucide:alert-triangle" class="w-8 h-8 text-white" />
+              </div>
+              <h3 class="text-xl font-bold text-white mt-4">Excluir aluno?</h3>
+              <p class="text-sm text-red-50 mt-1">Esta ação é permanente e não pode ser desfeita.</p>
+            </div>
+
+            <!-- Corpo -->
+            <div class="p-6 flex flex-col gap-4">
+              <!-- Identificação do aluno -->
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" :style="{ backgroundColor: aluno.cor }">
+                  {{ iniciais }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ aluno.nome }}</p>
+                  <p class="text-xs text-slate-500 mt-0.5">{{ aluno.matricula || '—' }}{{ aluno.escola ? ` · ${aluno.escola}` : '' }}</p>
+                </div>
+              </div>
+
+              <!-- O que será apagado -->
+              <div class="rounded-xl border border-red-100 dark:border-red-900/40 bg-red-50/50 dark:bg-red-900/10 p-4">
+                <p class="text-xs uppercase tracking-widest text-red-700 dark:text-red-300 font-semibold mb-2">
+                  Os seguintes dados serão apagados permanentemente:
+                </p>
+                <ul class="text-sm text-slate-700 dark:text-slate-300 flex flex-col gap-1.5">
+                  <li class="flex items-center gap-2">
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    Dados cadastrais do aluno
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    Todas as matrículas (histórico)
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    Vínculos com responsáveis
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Icon name="lucide:check" class="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    Cobranças associadas
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Confirmação por digitação do nome -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-700 dark:text-slate-300">
+                  Para confirmar, digite o nome do aluno:
+                </label>
+                <input
+                  v-model="confirmacaoNome"
+                  type="text"
+                  :placeholder="aluno.nome"
+                  class="w-full h-10 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
+                  :disabled="excluindoAluno"
+                />
+              </div>
+
+              <!-- Sugestão -->
+              <p class="text-[11px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2.5 flex items-start gap-2">
+                <Icon name="lucide:lightbulb" class="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>Se for temporário, prefira <strong>Desativar aluno</strong> — mantém os dados intactos.</span>
+              </p>
+            </div>
+
+            <!-- Rodapé -->
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2 bg-slate-50 dark:bg-slate-900/40">
+              <BaseButton variant="ghost" size="md" :disabled="excluindoAluno" @click="modalExcluir = false; confirmacaoNome = ''">
+                Cancelar
+              </BaseButton>
+              <BaseButton
+                size="md"
+                :disabled="excluindoAluno || confirmacaoNome.trim() !== aluno.nome.trim()"
+                @click="excluirAluno"
+                class="!bg-red-600 hover:!bg-red-700 disabled:!bg-red-300"
+              >
+                <Icon v-if="excluindoAluno" name="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <Icon v-else name="lucide:trash-2" class="w-4 h-4" />
+                {{ excluindoAluno ? 'Excluindo...' : 'Excluir definitivamente' }}
+              </BaseButton>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -1091,11 +1414,260 @@ import {
 import { formatBRL } from '~/utils/currency'
 import { applyCepMask, cepDigits, buscarCep } from '~/utils/cep'
 import { applyPhoneMask } from '~/utils/phone'
+import { applyCpfMask } from '~/composables/useAlunoForm'
+import { gerarRaPorCpf, gerarRmPorCpf } from '~/utils/ra'
+import type { Database } from '~/types/database.types'
 
-const route = useRoute()
+const route    = useRoute()
+const supabase = useSupabaseClient<Database>()
 
-function salvarAlteracoes() {
-  toast.success('Alterações salvas com sucesso! (mock)')
+// ─── Form editável (sincronizado quando carrega o aluno) ──────────────────────
+const form = reactive({
+  nome: '',
+  cpf: '',
+  dataNascimento: '',
+  status: 'ativo' as 'ativo' | 'inativo' | 'suspenso',
+  escolaId: '',
+  turmaId: '',
+  tabelaPrecoId: '',
+  formaPagamento: '',
+  cep: '',
+  logradouro: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cidade: '',
+  estado: '',
+  pais: 'Brasil',
+})
+
+const statusOpts = [
+  { label: 'Ativo',    value: 'ativo'    },
+  { label: 'Inativo',  value: 'inativo'  },
+  { label: 'Suspenso', value: 'suspenso' },
+]
+
+const formaPagamentoOpts = [
+  { label: 'Boleto mensal',     value: 'Boleto mensal'     },
+  { label: 'PIX recorrente',    value: 'PIX recorrente'    },
+  { label: 'Cartão de crédito', value: 'Cartão de crédito' },
+  { label: 'Débito automático', value: 'Débito automático' },
+  { label: 'Dinheiro',          value: 'Dinheiro'          },
+]
+
+// RA e RM gerados a partir do CPF
+const raAutoGerado = computed(() => gerarRaPorCpf(form.cpf, form.estado || 'SP'))
+const rmAutoGerado = computed(() => gerarRmPorCpf(form.cpf, new Date().getFullYear()))
+
+// Copiar para a área de transferência (feedback visual no botão)
+const copiado = ref<string | null>(null)
+async function copiarTexto(texto: string, rotulo: string) {
+  try {
+    await navigator.clipboard.writeText(texto)
+    copiado.value = rotulo
+    toast.success(`${rotulo} copiado`)
+    setTimeout(() => { if (copiado.value === rotulo) copiado.value = null }, 1500)
+  } catch (e) {
+    toast.error('Não foi possível copiar.')
+  }
+}
+
+// ─── Menu de Ações (trancar / desativar / excluir) ────────────────────────────
+const menuAcoesAberto = ref(false)
+const menuAcoesEl     = ref<HTMLElement | null>(null)
+const modalExcluir    = ref(false)
+const excluindoAluno  = ref(false)
+const confirmacaoNome = ref('')
+
+function onClickOutsideMenu(e: MouseEvent) {
+  if (!menuAcoesAberto.value) return
+  const el = menuAcoesEl.value
+  if (el && !el.contains(e.target as Node)) menuAcoesAberto.value = false
+}
+
+watch(menuAcoesAberto, (aberto) => {
+  if (typeof window === 'undefined') return
+  if (aberto) {
+    // Pequeno delay para não capturar o próprio click que abriu o menu
+    setTimeout(() => document.addEventListener('click', onClickOutsideMenu), 0)
+  } else {
+    document.removeEventListener('click', onClickOutsideMenu)
+  }
+})
+
+async function atualizarStatusNoBanco(novo: 'ativo' | 'inativo' | 'suspenso') {
+  const id = typeof route.params.id === 'string' ? route.params.id : null
+  if (!id) return
+  try {
+    const { error } = await supabase.from('alunos').update({ status: novo }).eq('id', id)
+    if (error) throw error
+    aluno.value.status = novo
+    form.status        = novo
+  } catch (e: any) {
+    toast.error(`Erro ao atualizar status: ${e?.message ?? ''}`)
+  }
+}
+
+async function atualizarStatus(novo: 'ativo' | 'inativo' | 'suspenso') {
+  await atualizarStatusNoBanco(novo)
+  const msg = novo === 'ativo'    ? 'Aluno ativado.'
+            : novo === 'suspenso' ? 'Matrícula trancada.'
+            :                       'Aluno desativado.'
+  toast.success(msg)
+}
+
+async function excluirAluno() {
+  const id = typeof route.params.id === 'string' ? route.params.id : null
+  if (!id) return
+  excluindoAluno.value = true
+  try {
+    // CASCADE: matriculas, aluno_responsaveis e cobranças do aluno são removidos via FK ON DELETE CASCADE.
+    const { error } = await supabase.from('alunos').delete().eq('id', id)
+    if (error) throw error
+    toast.success(`Aluno ${aluno.value.nome} excluído.`)
+    modalExcluir.value = false
+    await navigateTo('/alunos')
+  } catch (e: any) {
+    toast.error(`Erro ao excluir: ${e?.message ?? ''}`)
+  } finally {
+    excluindoAluno.value = false
+  }
+}
+
+// CEP → busca endereço automaticamente
+const buscandoCep = ref(false)
+async function onCepInput(valor: string) {
+  form.cep = applyCepMask(valor)
+  const digits = cepDigits(valor)
+  if (digits.length !== 8) return
+  buscandoCep.value = true
+  try {
+    const data = await buscarCep(digits)
+    if (data) {
+      form.logradouro  = data.logradouro  || form.logradouro
+      form.bairro      = data.bairro      || form.bairro
+      form.cidade      = data.cidade      || form.cidade
+      form.estado      = data.estado      || form.estado
+      form.complemento = form.complemento || data.complemento
+      form.pais        = form.pais        || 'Brasil'
+    }
+  } catch (e) {
+    console.error('Erro ao buscar CEP:', e)
+  } finally {
+    buscandoCep.value = false
+  }
+}
+
+// Opções de unidade/turma (tabelas_preco é carregada num bloco abaixo)
+const escolasOptsList   = ref<{ id: string; nome_escola: string }[]>([])
+const turmasOptsList    = ref<{ id: string; nome: string; turno: string | null }[]>([])
+const escolaTurmasList  = ref<{ escola_id: string; turma_id: string }[]>([])
+const loadingOpts       = ref(true)
+
+const escolasOpts = computed(() =>
+  escolasOptsList.value.map(e => ({ label: e.nome_escola, value: e.id })),
+)
+const turmasDaUnidadeOpts = computed(() => {
+  if (!form.escolaId) return [] as { label: string; value: string }[]
+  const ids = new Set(
+    escolaTurmasList.value.filter(et => et.escola_id === form.escolaId).map(et => et.turma_id),
+  )
+  return turmasOptsList.value
+    .filter(t => ids.has(t.id))
+    .map(t => ({ label: t.turno ? `${t.nome} · ${t.turno}` : t.nome, value: t.id }))
+})
+
+function onEscolaChange(novaEscola: string) {
+  form.escolaId = novaEscola
+  // Se a turma atual não pertence à nova escola, limpa
+  const turmaPertence = escolaTurmasList.value.some(
+    et => et.escola_id === novaEscola && et.turma_id === form.turmaId,
+  )
+  if (!turmaPertence) form.turmaId = ''
+}
+
+async function carregarOpcoes() {
+  loadingOpts.value = true
+  try {
+    const [esc, turmas, et] = await Promise.all([
+      supabase.from('escolas').select('id, nome_escola').eq('status', 'ativo').order('nome_escola'),
+      supabase.from('turmas').select('id, nome, turno').eq('status', 'ativo').order('nome'),
+      supabase.from('escola_turmas').select('escola_id, turma_id'),
+    ])
+    escolasOptsList.value  = esc.data    ?? []
+    turmasOptsList.value   = (turmas.data ?? []) as any
+    escolaTurmasList.value = et.data     ?? []
+  } catch (e: any) {
+    console.error('Erro ao carregar opções:', e)
+  } finally {
+    loadingOpts.value = false
+  }
+}
+
+onMounted(carregarOpcoes)
+
+// Sincronização form ↔ aluno: registrada mais abaixo (depois que `aluno` é declarado)
+// para evitar TDZ (Temporal Dead Zone) durante a execução top-down do <script setup>.
+
+// ─── Salvar alterações ────────────────────────────────────────────────────────
+const salvandoAlteracoes = ref(false)
+
+async function salvarAlteracoes() {
+  const id = typeof route.params.id === 'string' ? route.params.id : null
+  if (!id) return
+
+  const faltando: string[] = []
+  if (!form.nome.trim())                        faltando.push('Nome do aluno')
+  if ((form.cpf || '').replace(/\D/g, '').length !== 11) faltando.push('CPF (válido)')
+  if (!form.escolaId)                           faltando.push('Unidade')
+  if (!form.turmaId)                            faltando.push('Turma')
+  if (!form.tabelaPrecoId)                      faltando.push('Tabela de preço')
+  if (!form.formaPagamento)                     faltando.push('Forma de pagamento')
+  if (faltando.length) {
+    toast.error(`Campos obrigatórios: ${faltando.join(', ')}.`)
+    abaAtiva.value = 'dados'
+    return
+  }
+
+  salvandoAlteracoes.value = true
+  try {
+    const { error } = await supabase
+      .from('alunos')
+      .update({
+        nome:            form.nome,
+        documento:       form.cpf,
+        ra:              raAutoGerado.value || null,
+        matricula:       rmAutoGerado.value || null,
+        data_nascimento: form.dataNascimento || null,
+        status:          form.status,
+        escola_id:       form.escolaId,
+        turma_id:        form.turmaId,
+        tabela_preco_id: form.tabelaPrecoId,
+        forma_pagamento: form.formaPagamento,
+        cep:             form.cep         || null,
+        logradouro:      form.logradouro  || null,
+        numero:          form.numero      || null,
+        complemento:     form.complemento || null,
+        bairro:          form.bairro      || null,
+        cidade:          form.cidade      || null,
+        estado:          form.estado      || null,
+        pais:            form.pais        || null,
+      })
+      .eq('id', id)
+    if (error) throw error
+
+    toast.success('Alterações salvas com sucesso.')
+    await carregarAluno() // recarrega para refletir as mudanças no header
+  } catch (e: any) {
+    const msg = e?.message ?? 'Erro desconhecido'
+    if (msg.includes('alunos_ra_unique') || (msg.includes('duplicate key') && msg.includes('ra'))) {
+      toast.error('Este RA já existe para outro aluno. Verifique o CPF informado.')
+    } else {
+      toast.error(`Erro ao salvar: ${msg}`)
+    }
+  } finally {
+    salvandoAlteracoes.value = false
+  }
 }
 
 // ─── Transporte escolar ──────────────────────────────────────────────────────
@@ -1217,7 +1789,15 @@ if (typeof window !== 'undefined') {
 const modalTurmaOpen = ref(false)
 const formTurma = ref({ unidade: '', turmaId: '' })
 
-const turmaAtualLabel = computed(() => aluno.value.turmaId ? turmaLabel(aluno.value.turmaId) : '')
+const turmaAtualLabel = computed(() => {
+  const tid = aluno.value.turmaId
+  if (!tid) return ''
+  // Procura na lista real carregada do banco
+  const t = turmasOptsList.value.find(x => x.id === tid)
+  if (t) return t.turno ? `${t.nome} · ${t.turno}` : t.nome
+  // Fallback (turmas mockadas legadas)
+  return turmaLabel(tid)
+})
 
 const turmasOptsModal = computed(() =>
   getTurmasDaUnidade(formTurma.value.unidade).map(t => ({
@@ -1302,6 +1882,14 @@ interface AlunoView {
   dataNascimento: string | null
   status: 'ativo' | 'inativo' | 'suspenso'
   forma_pagamento: string | null
+  cep: string | null
+  logradouro: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  cidade: string | null
+  estado: string | null
+  pais: string | null
 }
 
 const aluno = ref<AlunoView>({
@@ -1322,7 +1910,31 @@ const aluno = ref<AlunoView>({
   dataNascimento: null,
   status: 'ativo',
   forma_pagamento: null,
+  cep: null, logradouro: null, numero: null, complemento: null,
+  bairro: null, cidade: null, estado: null, pais: null,
 })
+
+// Sincroniza o form editável com o aluno carregado do banco.
+// Chamada explicitamente no final de carregarAluno (mais previsível que watch,
+// já que o id no estado inicial já é o mesmo da rota — watch não detectaria mudança).
+function syncFormComAluno() {
+  form.nome           = aluno.value.nome
+  form.cpf            = aluno.value.documento ?? ''
+  form.dataNascimento = aluno.value.dataNascimento ?? ''
+  form.status         = aluno.value.status
+  form.escolaId       = aluno.value.escolaId ?? ''
+  form.turmaId        = aluno.value.turmaId ?? ''
+  form.tabelaPrecoId  = aluno.value.tabelaPrecoId ?? ''
+  form.formaPagamento = aluno.value.forma_pagamento ?? ''
+  form.cep         = aluno.value.cep         ?? ''
+  form.logradouro  = aluno.value.logradouro  ?? ''
+  form.numero      = aluno.value.numero      ?? ''
+  form.complemento = aluno.value.complemento ?? ''
+  form.bairro      = aluno.value.bairro      ?? ''
+  form.cidade      = aluno.value.cidade      ?? ''
+  form.estado      = aluno.value.estado      ?? ''
+  form.pais        = aluno.value.pais        ?? 'Brasil'
+}
 
 // ─── Carrega aluno real do banco ──────────────────────────────────────────────
 import { useAlunos } from '~/composables/useAlunos'
@@ -1359,8 +1971,11 @@ async function carregarAluno() {
       dataNascimento: a.data_nascimento,
       status: a.status,
       forma_pagamento: a.forma_pagamento,
+      cep: a.cep, logradouro: a.logradouro, numero: a.numero, complemento: a.complemento,
+      bairro: a.bairro, cidade: a.cidade, estado: a.estado, pais: a.pais,
     }
     responsaveisDoBanco.value = responsaveis
+    syncFormComAluno()
   } catch (e: any) {
     toast.error(`Erro ao carregar aluno: ${e?.message ?? ''}`)
     alunoNaoEncontrado.value = true

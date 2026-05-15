@@ -13,6 +13,14 @@ export interface AlunoRecord {
   tabela_preco_id: string | null
   status: StatusGeral
   criado_em: string
+  cep: string | null
+  logradouro: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  cidade: string | null
+  estado: string | null
+  pais: string | null
   // joins
   turma_nome: string | null
   escola_nome: string | null
@@ -54,6 +62,7 @@ export function useAlunos() {
       .select(`
         id, escola_id, nome, data_nascimento, documento, matricula, ra, forma_pagamento,
         turma_id, tabela_preco_id, status, criado_em,
+        cep, logradouro, numero, complemento, bairro, cidade, estado, pais,
         escola:escola_id ( id, nome_escola ),
         turma:turma_id ( id, nome )
       `)
@@ -99,6 +108,8 @@ export function useAlunos() {
         tabela_preco_id: a.tabela_preco_id,
         status: a.status,
         criado_em: a.criado_em,
+        cep: a.cep, logradouro: a.logradouro, numero: a.numero, complemento: a.complemento,
+        bairro: a.bairro, cidade: a.cidade, estado: a.estado, pais: a.pais,
         turma_nome:       turma?.nome        ?? null,
         escola_nome:      escola?.nome_escola ?? null,
         responsavel_nome: responsavelByAluno.get(a.id) ?? null,
@@ -128,6 +139,7 @@ export function useAlunos() {
       .select(`
         id, escola_id, nome, data_nascimento, documento, matricula, ra, forma_pagamento,
         turma_id, tabela_preco_id, status, criado_em,
+        cep, logradouro, numero, complemento, bairro, cidade, estado, pais,
         escola:escola_id ( id, nome_escola ),
         turma:turma_id ( id, nome )
       `)
@@ -177,6 +189,8 @@ export function useAlunos() {
       tabela_preco_id: data.tabela_preco_id,
       status: data.status,
       criado_em: data.criado_em,
+      cep: data.cep, logradouro: data.logradouro, numero: data.numero, complemento: data.complemento,
+      bairro: data.bairro, cidade: data.cidade, estado: data.estado, pais: data.pais,
       turma_nome:       turma?.nome        ?? null,
       escola_nome:      escola?.nome_escola ?? null,
       responsavel_nome: responsaveis[0]?.nome ?? null,

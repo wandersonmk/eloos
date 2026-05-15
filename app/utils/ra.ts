@@ -50,3 +50,23 @@ export function gerarRaPorCpf(cpf: string, uf: string): string {
 
   return `${num12}-${dv}/${ufUp}`
 }
+
+/**
+ * Gera o RM (Registro de Matrícula) determinístico a partir do CPF + ano letivo.
+ * Padrão: AAAA-NNNNNN (ano + 6 dígitos derivados do CPF).
+ * Mesmo CPF + mesmo ano → mesmo RM. UNIQUE no banco protege contra colisão.
+ */
+export function gerarRmPorCpf(cpf: string, ano: number): string {
+  const digits = cpf.replace(/\D/g, '')
+  if (digits.length !== 11) return ''
+
+  let h = 0n
+  for (let i = 0; i < digits.length; i++) {
+    h = (h * 1099511628211n + BigInt(digits.charCodeAt(i))) & 0xFFFFFFFFFFFFFFFFn
+  }
+  const cpfNum = BigInt(digits)
+  const mixed  = (h ^ (cpfNum * 2654435761n)) % 1000000n // 6 dígitos
+  const num6   = mixed.toString().padStart(6, '0')
+
+  return `${ano}-${num6}`
+}

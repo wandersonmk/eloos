@@ -32,6 +32,7 @@
           :model-value="modelValue.turma"
           @update:model-value="patch({ turma: $event })"
           label="Turma"
+          required
           :placeholder="placeholderTurma"
           :disabled="!modelValue.unidade || loadingTurmas"
           :options="turmasDaUnidadeOpts"
@@ -44,7 +45,8 @@
           :model-value="modelValue.tabela_preco_id"
           @update:model-value="patch({ tabela_preco_id: $event })"
           label="Tabela de preço"
-          :placeholder="loadingTabelas ? 'Carregando tabelas...' : 'Selecione (opcional)'"
+          required
+          :placeholder="loadingTabelas ? 'Carregando tabelas...' : 'Selecione a tabela'"
           :options="tabelasOpts"
           :hint="!loadingTabelas && !tabelasOpts.length ? 'Nenhuma tabela cadastrada — crie em Configurações → Tabelas de preço' : 'Aplica mensalidade, matrícula e material a este aluno'"
         />
@@ -52,6 +54,7 @@
           :model-value="modelValue.forma_pagamento"
           @update:model-value="patch({ forma_pagamento: $event })"
           label="Forma de pagamento"
+          required
           placeholder="Selecione"
           :options="formaPagamentoOpts"
           hint="Forma de pagamento padrão para as mensalidades"
@@ -64,23 +67,15 @@
           label="RA (Registro do Aluno)"
           disabled
           :placeholder="modelValue.cpf ? 'Aguardando CPF válido...' : 'Preencha o CPF abaixo para gerar'"
-          hint="Gerado automaticamente a partir do CPF. Único em todo o sistema."
+          hint="Gerado automaticamente"
         />
-        <div class="flex flex-col gap-1.5">
-          <BaseInput
-            :model-value="modelValue.rm"
-            @update:model-value="patch({ rm: $event })"
-            label="RM (Registro de Matrícula)"
-            required
-            :disabled="modelValue.gerarRmAutomatico"
-            :placeholder="modelValue.gerarRmAutomatico ? 'Será gerado automaticamente' : ''"
-          />
-          <BaseCheckbox
-            :model-value="modelValue.gerarRmAutomatico"
-            @update:model-value="patch({ gerarRmAutomatico: $event, rm: $event ? '' : modelValue.rm })"
-            label="Gerar RM automaticamente"
-          />
-        </div>
+        <BaseInput
+          :model-value="rmAutoGerado"
+          label="RM (Registro de Matrícula)"
+          disabled
+          :placeholder="modelValue.cpf ? 'Aguardando CPF válido...' : 'Preencha o CPF abaixo para gerar'"
+          hint="Gerado automaticamente"
+        />
       </FormGrid>
 
       <BaseInput :model-value="modelValue.nome" @update:model-value="patch({ nome: $event })" label="Nome do aluno" required />
@@ -304,7 +299,7 @@
 import type { AlunoFormData } from '~/composables/useAlunoForm'
 import { useTabelasPreco, type TabelaPrecoRecord } from '~/composables/useTabelasPreco'
 import type { Database } from '~/types/database.types'
-import { gerarRaPorCpf } from '~/utils/ra'
+import { gerarRaPorCpf, gerarRmPorCpf } from '~/utils/ra'
 
 const formaPagamentoOpts = [
   { label: 'Boleto mensal',   value: 'Boleto mensal'   },
@@ -330,9 +325,17 @@ const raAutoGerado = computed(() => {
   return gerarRaPorCpf(props.modelValue.cpf, uf)
 })
 
-// Mantém modelValue.ra sincronizado com o RA gerado (para o save persistir o valor).
+// RM derivado do CPF + ano letivo atual.
+const rmAutoGerado = computed(() =>
+  gerarRmPorCpf(props.modelValue.cpf, new Date().getFullYear()),
+)
+
+// Mantém modelValue.ra e modelValue.rm sincronizados (para o save persistir).
 watch(raAutoGerado, (novo) => {
   if (novo !== props.modelValue.ra) patch({ ra: novo })
+}, { immediate: true })
+watch(rmAutoGerado, (novo) => {
+  if (novo !== props.modelValue.rm) patch({ rm: novo, gerarRmAutomatico: true })
 }, { immediate: true })
 
 function onUnidadeChange(novaUnidade: string) {

@@ -316,13 +316,7 @@ function scrollToTop() {
 }
 
 const salvando = ref(false)
-
-function gerarRmAutomatico(): string {
-  // Padrão: AAAA-NNNNNN (ano letivo + 6 dígitos aleatórios)
-  const ano = new Date().getFullYear()
-  const num = Math.floor(100000 + Math.random() * 900000)
-  return `${ano}-${num}`
-}
+import { gerarRmPorCpf, gerarRaPorCpf } from '~/utils/ra'
 
 function pegarPrimeiroTelefone(resp: import('~/composables/useAlunoForm').ResponsavelData): string | null {
   const grupos = [resp.telefones.contato, resp.telefones.residencial, resp.telefones.comercial]
@@ -410,14 +404,18 @@ async function salvar(rascunho: boolean) {
   }
 
   // Validação mínima dos campos obrigatórios
+  const cpfDigits = (form.value.cpf || '').replace(/\D/g, '')
   const obrigatorios = [
-    { v: form.value.autorizaImagem, nome: 'Autoriza uso de imagem' },
-    { v: form.value.unidade,        nome: 'Unidade de cadastro' },
-    { v: form.value.rm || form.value.gerarRmAutomatico, nome: 'RM (Registro de Matrícula)' },
-    { v: form.value.nome,           nome: 'Nome do aluno' },
-    { v: form.value.dataNascimento, nome: 'Data de nascimento' },
-    { v: form.value.nacionalidade,  nome: 'Nacionalidade' },
-    { v: form.value.falecido,       nome: 'Falecido?' },
+    { v: form.value.autorizaImagem,  nome: 'Autoriza uso de imagem' },
+    { v: form.value.unidade,         nome: 'Unidade de cadastro' },
+    { v: form.value.turma,           nome: 'Turma' },
+    { v: form.value.tabela_preco_id, nome: 'Tabela de preço' },
+    { v: form.value.forma_pagamento, nome: 'Forma de pagamento' },
+    { v: form.value.nome,            nome: 'Nome do aluno' },
+    { v: cpfDigits.length === 11 ? '1' : '', nome: 'CPF (válido — 11 dígitos)' },
+    { v: form.value.dataNascimento,  nome: 'Data de nascimento' },
+    { v: form.value.nacionalidade,   nome: 'Nacionalidade' },
+    { v: form.value.falecido,        nome: 'Falecido?' },
     { v: form.value.enderecoResidencial.cep || form.value.enderecoResidencial.exterior, nome: 'CEP do endereço residencial' },
     { v: form.value.enderecoResidencial.logradouro, nome: 'Logradouro do endereço residencial' },
     { v: form.value.enderecoResidencial.numero,     nome: 'Número do endereço residencial' },
@@ -434,7 +432,9 @@ async function salvar(rascunho: boolean) {
   salvando.value = true
   try {
     const f = form.value
-    const rm = f.gerarRmAutomatico ? gerarRmAutomatico() : f.rm
+    const anoAtual = new Date().getFullYear()
+    const rm = gerarRmPorCpf(f.cpf, anoAtual) // sempre deterministico via CPF
+    const ra = gerarRaPorCpf(f.cpf, 'SP')      // mesmo padrão
 
     // 1. INSERT em alunos (campos da identificação que existem na coluna do banco)
     const { data: aluno, error: alunoErr } = await supabase
@@ -443,13 +443,21 @@ async function salvar(rascunho: boolean) {
         escola_id:       f.unidade,
         nome:            f.nome,
         data_nascimento: f.dataNascimento || null,
-        documento:       f.cpf || null,
-        matricula:       rm || null,
-        ra:              f.ra || null,
-        turma_id:        f.turma           || null,
-        tabela_preco_id: f.tabela_preco_id || null,
-        forma_pagamento: f.forma_pagamento || null,
+        documento:       f.cpf,
+        matricula:       rm,
+        ra:              ra,
+        turma_id:        f.turma,
+        tabela_preco_id: f.tabela_preco_id,
+        forma_pagamento: f.forma_pagamento,
         status:          'ativo',
+        cep:             f.enderecoResidencial.cep         || null,
+        logradouro:      f.enderecoResidencial.logradouro  || null,
+        numero:          f.enderecoResidencial.numero      || null,
+        complemento:     f.enderecoResidencial.complemento || null,
+        bairro:          f.enderecoResidencial.bairro      || null,
+        cidade:          f.enderecoResidencial.municipio   || null,
+        estado:          f.enderecoResidencial.uf          || null,
+        pais:            f.enderecoResidencial.pais        || null,
       })
       .select('id')
       .single()

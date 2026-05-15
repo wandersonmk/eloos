@@ -69,14 +69,22 @@ export type Database = {
       alunos: {
         Row: {
           atualizado_em: string
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
           criado_em: string
           data_nascimento: string | null
           documento: string | null
           escola_id: string
+          estado: string | null
           forma_pagamento: string | null
           id: string
+          logradouro: string | null
           matricula: string | null
           nome: string
+          numero: string | null
+          pais: string | null
           ra: string | null
           status: Database["public"]["Enums"]["status_geral_enum"]
           tabela_preco_id: string | null
@@ -84,14 +92,22 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
           criado_em?: string
           data_nascimento?: string | null
           documento?: string | null
           escola_id: string
+          estado?: string | null
           forma_pagamento?: string | null
           id?: string
+          logradouro?: string | null
           matricula?: string | null
           nome: string
+          numero?: string | null
+          pais?: string | null
           ra?: string | null
           status?: Database["public"]["Enums"]["status_geral_enum"]
           tabela_preco_id?: string | null
@@ -99,14 +115,22 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
           criado_em?: string
           data_nascimento?: string | null
           documento?: string | null
           escola_id?: string
+          estado?: string | null
           forma_pagamento?: string | null
           id?: string
+          logradouro?: string | null
           matricula?: string | null
           nome?: string
+          numero?: string | null
+          pais?: string | null
           ra?: string | null
           status?: Database["public"]["Enums"]["status_geral_enum"]
           tabela_preco_id?: string | null
